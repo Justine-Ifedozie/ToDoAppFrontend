@@ -1,103 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tasks</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body class="tasks-page">
-    
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body class="tasks-page">
     <nav class="navigation1">
-        <img src="/images/logo-removebg-preview.png" alt="logo">
-        <div class="divs">
-            <div> <a href="index.html">Home</a></div>
-            <div><a href="tasks.html" class="active">Tasks</a></div>
-            <div><a href="calendar.html">Calendar</a></div>
-            <div><a href="reminders.html">Reminders</a></div>
-            <div><a href="profile.html">Profile</a></div>
-        </div>
+      <img src="/images/logo-removebg-preview.png" alt="logo" />
+      <div class="divs">
+        <div><a href="index.html">Home</a></div>
+        <div><a href="tasks.html" class="active">Tasks</a></div>
+        <div><a href="calendar.html">Calendar</a></div>
+        <div><a href="reminders.html">Reminders</a></div>
+        <div><a href="profile.html">Profile</a></div>
+      </div>
     </nav>
 
     <header class="header1">
-        <h1>My Tasks</h1>
-        <button id="add-task-btn">+ Add Task</button>
+      <h1>My Tasks</h1>
+      <button id="add-task-btn">+ Add Task</button>
     </header>
 
     <main>
-        <div class="task-list">
-            <div class="task">
-                <h3>Finish Backend Service</h3>
-                <p>Deadline: 20th Sept, 2025</p>
-                <p>Priority: High</p>
-                <p>Status: <span class="status pending">Pending</span> </p>
-                <div class="task-actions">
-                    <button class="complete-btn">Mark as Completed</button>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
-
-            <div class="task">
-                <h3>Go home after community hangout</h3>
-                <p>Deadline: 19th Sept, 2025</p>
-                <p>Priority: High</p>
-                <p>Status: <span class="status pending">Pending</span> </p>
-                <div class="task-actions">
-                    <button class="complete-btn">Mark as Completed</button>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
-
-            <div class="task">
-                <h3>Go to the gym</h3>
-                <p>Deadline: 20th Sept, 2025</p>
-                <p>Priority: High</p>
-                <p>Status: <span class="status pending">Pending</span> </p>
-                <div class="task-actions">
-                    <button class="complete-btn">Mark as Completed</button>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
-
-            <div class="task">
-                <h3>Post on LinkedIn</h3>
-                <p>Deadline: 20th Sept, 2025</p>
-                <p>Priority: High</p>
-                <p>Status: <span class="status pending">Pending</span> </p>
-                <div class="task-actions">
-                    <button class="complete-btn">Mark as Completed</button>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
+      <div class="task-list">
+        <div class="task">
+          <h3>Finish Backend Service</h3>
+          <p>Deadline: 20th Sept, 2025</p>
+          <p>Priority: High</p>
+          <p>Status: <span class="status pending">Pending</span></p>
+          <div class="task-actions">
+            <button class="complete-btn">Mark as Completed</button>
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </div>
         </div>
+
+        <div class="task">
+          <h3>Go home after community hangout</h3>
+          <p>Deadline: 19th Sept, 2025</p>
+          <p>Priority: High</p>
+          <p>Status: <span class="status pending">Pending</span></p>
+          <div class="task-actions">
+            <button class="complete-btn">Mark as Completed</button>
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </div>
+        </div>
+
+        <div class="task">
+          <h3>Go to the gym</h3>
+          <p>Deadline: 20th Sept, 2025</p>
+          <p>Priority: High</p>
+          <p>Status: <span class="status pending">Pending</span></p>
+          <div class="task-actions">
+            <button class="complete-btn">Mark as Completed</button>
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </div>
+        </div>
+
+        <div class="task">
+          <h3>Post on LinkedIn</h3>
+          <p>Deadline: 20th Sept, 2025</p>
+          <p>Priority: High</p>
+          <p>Status: <span class="status pending">Pending</span></p>
+          <div class="task-actions">
+            <button class="complete-btn">Mark as Completed</button>
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <div id="edit-task-modal" class="modal">
-        <div class="modal-content">
-            <h2>Edit Task</h2>
-            <form id="edit-task-form">
-                <input type="text" id="edit-title" placeholder="Title" required>
-                <textarea id="edit-body" placeholder="Description"></textarea>
-                <select id="edit-priority">
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                </select>
+      <div class="modal-content">
+        <h2>Edit Task</h2>
+        <form id="edit-task-form">
+          <input type="text" id="edit-title" placeholder="Title" required />
+          <textarea id="edit-body" placeholder="Description"></textarea>
+          <select id="edit-priority">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+          </select>
 
-                <input type="date" id="edit-deadline" placeholder="date">
-                <div class="moal-actions">
-                    <button type="submit" class="save-btn">Save</button>
-                    <button type="button" id="close-modal" class="cancel-btn">Cancel</button>
-                </div>
-            </form>
-        </div>
+          <input type="date" id="edit-deadline" placeholder="date" />
+          <div class="modal-actions">
+            <button type="submit" class="save-btn">Save</button>
+            <button type="button" id="close-modal" class="cancel-btn">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script src="/javaScript/app.js"></script>
-
-</body>
+  </body>
 </html>
