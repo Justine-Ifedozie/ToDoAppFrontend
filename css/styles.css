@@ -85,6 +85,12 @@ body.reminders-page{
     margin-left: 300px;
 }
 
+#registerForm input, #registerForm button{
+    display: block;
+    margin-bottom: 30px;
+    margin-left: 300px;
+}
+
 #email, #password, #username{
     width: 300px;
     height: 30px;
@@ -109,6 +115,12 @@ body.reminders-page{
 }
 
 #loginForm button{
+    width: 70px;
+    height: 25px;
+    cursor: pointer;
+}
+
+#registerForm button{
     width: 70px;
     height: 25px;
     cursor: pointer;
@@ -162,7 +174,7 @@ body.reminders-page{
 
 .header1{
     display: flex;
-    margin-top: 80px;
+    margin-top: 180px;
     gap: 680px;
 }
 
@@ -472,3 +484,39 @@ body.calendar-page {
     height: 40px;
     width: 105px;
 }
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  z-index: 1000;
+  animation: fadeInOut 2s ease;
+}
+
+.toast.success{
+    background-color: #2ecc71;
+}
+
+.toast.error{
+    background-color: #a71524;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+
+.login-page {
+  background: linear-gradient(to right, #f0f0f0, #dbeafe);
+}
+
+.register-page {
+  background: linear-gradient(to right, #f0f0f0, #fde2e2);
+}
+

@@ -10,12 +10,11 @@
     <nav class="navigation1">
       <img src="/images/logo-removebg-preview.png" alt="logo" />
       <div class="divs">
-        <div><a href="index.html">Home</a></div>
         <div><a href="tasks.html">Tasks</a></div>
         <div><a href="calendar.html">Calendar</a></div>
         <div><a href="reminders.html" class="active">Reminders</a></div>
         <div><a href="profile.html">Profile</a></div>
-        <div><a href="login.html">Login</a></div>
+        <div><a id="authLink" href="login.html">Logout</a></div>
       </div>
     </nav>
 
@@ -32,9 +31,24 @@
           <p>Time: 10:00 AM</p>
           <p>Status: <span class="status upcoming">Upcoming</span></p>
         </div>
+
+        <div class="reminder">
+          <h3>Go jogging</h3>
+          <p>Date: 29th Sept, 2025</p>
+          <p>Time: 07:00 AM</p>
+          <p>Status: <span class="status upcoming">Upcoming</span></p>
+        </div>
+
+        <div class="reminder">
+          <h3>Call Mom</h3>
+          <p>Date: 29th Oct, 2025</p>
+          <p>Time: 06:00 PM</p>
+          <p>Status: <span class="status upcoming">Upcoming</span></p>
+        </div>
       </div>
     </main>
 
+    <script src="/js/auth.js"></script>
     <script src="/javaScript/app.js"></script>
   </body>
 </html>

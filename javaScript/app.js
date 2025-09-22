@@ -1,138 +1,191 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('edit-task-modal');
-  const form = document.getElementById('edit-task-form');
-  const closeBtn = document.getElementById('close-modal');
-  const taskList = document.querySelector('.task-list');
+  const modal = document.getElementById('task-modal');
+  const form = document.getElementById('task-form');
+  const closeBtn = document.getElementById('close-task-modal');
+  const taskList = document.getElementById('task-list');
+  const addTaskBtn = document.getElementById('add-task-btn');
+  const taskModalTitle = document.getElementById('task-modal-title');
+  const taskIdInput = document.getElementById('task-id');
+  const emptyState = document.createElement('div');
 
-  if (!modal || !form || !taskList) {
-    console.error('Required elements not found (modal/form/task-list).');
+  emptyState.className = 'empty-state';
+  emptyState.innerHTML = `
+    <p>No tasks yet. Click <strong>+ Add Task</strong> to create one!</p>
+  `;
+
+  let user = JSON.parse(localStorage.getItem('user'));
+  if (!user) {
+    window.location.href = 'login.html';
     return;
   }
 
-  let currentTask = null;
+
+  function toggleEmptyState() {
+    if (!taskList || taskList.children.length === 0) {
+      if (!document.querySelector('.empty-state')) {
+        taskList.parentNode.insertBefore(emptyState, taskList);
+      }
+    } else {
+      const es = document.querySelector('.empty-state');
+      if (es) es.remove();
+    }
+  }
+
+  function formatDeadline(deadline) {
+    if (!deadline) return 'No deadline';
+    const d = new Date(deadline);
+    return d.toLocaleString();
+  }
+
+  function createTaskElement(task) {
+    const taskEl = document.createElement('div');
+    taskEl.className = 'task';
+    taskEl.dataset.id = task.id;
+
+    taskEl.innerHTML = `
+      <h3>${task.title}</h3>
+      <p>${task.body || ''}</p>
+      <p>Deadline: ${formatDeadline(task.deadline)}</p>
+      <p>Priority: ${task.priority}</p>
+      <p>Status: <span class="status ${task.completed ? 'completed' : 'pending'}">
+        ${task.completed ? 'Completed' : 'Pending'}
+      </span></p>
+      <div class="task-actions">
+        <button class="complete-btn">${task.completed ? 'Undo' : 'Mark as Completed'}</button>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    `;
+
+    return taskEl;
+  }
+
+  async function loadTasks() {
+    try {
+      const res = await fetch(`/api/tasks/user/${user.id}`);
+      if (!res.ok) throw new Error('Failed to fetch tasks');
+      const tasks = await res.json();
+      taskList.innerHTML = '';
+      tasks.forEach(task => {
+        const el = createTaskElement(task);
+        taskList.appendChild(el);
+      });
+      toggleEmptyState();
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
 
-  taskList.addEventListener('click', (e) => {
-    const editBtn = e.target.closest('.edit-btn');
-    if (!editBtn) return;
-
-    const taskEl = editBtn.closest('.task');
-    if (!taskEl) return;
-
-    currentTask = taskEl;
-
-    const title = taskEl.querySelector('h3')?.innerText.trim() ?? '';
-
-    let body = '', priority = '', deadline = '';
-    taskEl.querySelectorAll('p').forEach(p => {
-      const txt = p.innerText.trim();
-      const low = txt.toLowerCase();
-      if (low.startsWith('deadline:')) deadline = txt.replace(/deadline:/i, '').trim();
-      else if (low.startsWith('priority:')) priority = txt.replace(/priority:/i, '').trim();
-      else if (low.startsWith('status:')) {  }
-      else body = txt;
-    });
-
-
-    document.getElementById('edit-title').value = title;
-    document.getElementById('edit-body').value = body;
-    document.getElementById('edit-priority').value = (priority || 'MEDIUM').toUpperCase();
-
-
-    const iso = parseToIsoDate(deadline);
-    document.getElementById('edit-deadline').value = iso || '';
-
+  addTaskBtn.addEventListener('click', () => {
+    form.reset();
+    taskIdInput.value = '';
+    taskModalTitle.textContent = 'Add Task';
     modal.style.display = 'flex';
   });
 
-  closeBtn?.addEventListener('click', () => { modal.style.display = 'none'; currentTask = null; });
-
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
 
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.style.display = 'none';
-      currentTask = null;
-    }
+    if (e.target === modal) modal.style.display = 'none';
   });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.style.display === 'flex') {
-      modal.style.display = 'none';
-      currentTask = null;
-    }
-  });
-
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!currentTask) {
-      modal.style.display = 'none';
-      return;
-    }
+    const id = taskIdInput.value;
+    const title = document.getElementById('task-title').value.trim();
+    const body = document.getElementById('task-body').value.trim();
+    const priority = document.getElementById('task-priority').value;
+    const deadlineInput = document.getElementById('task-deadline').value;
+    const deadline = deadlineInput ? new Date(deadlineInput).toISOString() : null;
 
-    const newTitle = document.getElementById('edit-title').value.trim();
-    const newBody = document.getElementById('edit-body').value.trim();
-    const newPriority = document.getElementById('edit-priority').value;
-    const newDeadlineVal = document.getElementById('edit-deadline').value;
+    const payload = { userId: user.id, title, body, priority, deadline };
 
-    const h3 = currentTask.querySelector('h3');
-    if (h3) h3.innerText = newTitle;
+    try {
+      let res;
+      if (id) {
 
-    let pEls = Array.from(currentTask.querySelectorAll('p'));
-    let bodyP = pEls.find(p => {
-      const t = p.innerText.toLowerCase();
-      return !t.startsWith('deadline:') && !t.startsWith('priority:') && !t.startsWith('status:');
-    });
-    if (bodyP) bodyP.innerText = newBody;
-    else {
-      const newP = document.createElement('p');
-      newP.innerText = newBody;
-      const actions = currentTask.querySelector('.task-actions');
-      currentTask.insertBefore(newP, actions);
-    }
+        res = await fetch(`/api/tasks/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
 
-    const deadlineP = pEls.find(p => p.innerText.toLowerCase().startsWith('deadline:'));
-    if (newDeadlineVal) {
-      const human = new Date(newDeadlineVal).toLocaleDateString();
-      if (deadlineP) deadlineP.innerText = 'Deadline: ' + human;
-      else {
-        const newDP = document.createElement('p');
-        newDP.innerText = 'Deadline: ' + new Date(newDeadlineVal).toLocaleDateString();
-        const actions = currentTask.querySelector('.task-actions');
-        currentTask.insertBefore(newDP, actions);
+        res = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
       }
-    } else {
-      if (deadlineP) deadlineP.remove();
-    }
 
-    const priorityP = pEls.find(p => p.innerText.toLowerCase().startsWith('priority:'));
-    if (priorityP) priorityP.innerText = 'Priority: ' + newPriority;
-    else {
-      const newPr = document.createElement('p');
-      newPr.innerText = 'Priority: ' + newPriority;
-      const actions = currentTask.querySelector('.task-actions');
-      currentTask.insertBefore(newPr, actions);
+      if (!res.ok) throw new Error('Failed to save task');
+      await loadTasks();
+      modal.style.display = 'none';
+    } catch (err) {
+      console.error(err);
     }
-
-    modal.style.display = 'none';
-    currentTask = null;
   });
 
-  function parseToIsoDate(str) {
-    if (!str) return null;
 
-    const d = new Date(str);
-    if (!isNaN(d.valueOf())) return d.toISOString().split('T')[0];
+  taskList.addEventListener('click', async (e) => {
+    const taskEl = e.target.closest('.task');
+    if (!taskEl) return;
+    const id = taskEl.dataset.id;
 
 
-    const m = str.match(/(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+),?\s+(\d{4})/);
-    if (m) {
-      const day = String(m[1]).padStart(2, '0');
-      const monthName = m[2].slice(0,3).toLowerCase();
-      const months = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
-      const mm = months[monthName];
-      if (mm) return `${m[3]}-${mm}-${day}`;
+    if (e.target.classList.contains('delete-btn')) {
+      try {
+        const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          taskEl.remove();
+          toggleEmptyState();
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
-    return null;
-  }
+
+    if (e.target.classList.contains('complete-btn')) {
+      try {
+        const res = await fetch(`/api/tasks/${id}/complete`, { method: 'PUT' });
+        if (res.ok) {
+          await loadTasks();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+
+    if (e.target.classList.contains('edit-btn')) {
+      const title = taskEl.querySelector('h3').innerText;
+      const body = taskEl.querySelectorAll('p')[0]?.innerText || '';
+      const priority = taskEl.querySelectorAll('p')[2]?.innerText.replace('Priority: ', '');
+      const deadlineTxt = taskEl.querySelectorAll('p')[1]?.innerText.replace('Deadline: ', '').trim();
+
+      document.getElementById('task-title').value = title;
+      document.getElementById('task-body').value = body;
+      document.getElementById('task-priority').value = priority.toUpperCase();
+      document.getElementById('task-id').value = id;
+
+
+      if (deadlineTxt && deadlineTxt !== 'No deadline') {
+        const d = new Date(deadlineTxt);
+        const localISO = d.toISOString().slice(0, 16); 
+        document.getElementById('task-deadline').value = localISO;
+      } else {
+        document.getElementById('task-deadline').value = '';
+      }
+
+      taskModalTitle.textContent = 'Edit Task';
+      modal.style.display = 'flex';
+    }
+  });
+
+
+  loadTasks();
 });
 
