@@ -1,4 +1,3 @@
-// tasks.js
 document.addEventListener("DOMContentLoaded", () => {
   const API_BASE = "http://localhost:8080/api/tasks";
   const user = JSON.parse(localStorage.getItem("user"));
@@ -15,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalTitle = document.getElementById("task-modal-title");
   const taskIdInput = document.getElementById("task-id");
 
-  // Toast container
   const toastContainer = document.createElement("div");
   toastContainer.id = "toast-container";
   document.body.appendChild(toastContainer);
@@ -31,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2200);
   }
 
-  // defensive HTML escape to avoid XSS from server data
   function escapeHtml(str = "") {
     return String(str)
       .replaceAll("&", "&amp;")
@@ -41,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .replaceAll("'", "&#039;");
   }
 
-  // Fetch tasks (no-cache)
+
   async function fetchTasks() {
     try {
       const res = await fetch(`${API_BASE}/user/${encodeURIComponent(user.id)}?_=${Date.now()}`, {
@@ -49,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       if (!res.ok) throw new Error("Failed to load tasks");
       const tasks = await res.json();
-      console.debug("fetchTasks -> tasks:", tasks); // useful for debugging
+      console.debug("fetchTasks -> tasks:", tasks);
       renderTasks(Array.isArray(tasks) ? tasks : []);
     } catch (err) {
       console.error("fetchTasks error:", err);
@@ -57,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // render list or empty state
   function renderTasks(tasks) {
     taskList.innerHTML = "";
     if (!tasks || tasks.length === 0) {
@@ -70,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tasks.forEach(renderTask);
   }
 
-  // render single task; coerce completed boolean robustly
   function renderTask(task) {
     const completed = (task.completed === true) || (String(task.completed) === "true") || Number(task.completed) === 1;
     const title = escapeHtml(task.title || "Untitled");
@@ -97,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // subtle visual change for completed tasks
     if (completed) {
       taskEl.style.opacity = "0.7";
     } else {
@@ -107,14 +101,14 @@ document.addEventListener("DOMContentLoaded", () => {
     taskList.appendChild(taskEl);
   }
 
-  // open/close modal
+
   function openModal(editing = false, taskEl = null) {
     modal.style.display = "flex";
     modalTitle.innerText = editing ? "Edit Task" : "Add Task";
     if (editing && taskEl) {
       taskIdInput.value = taskEl.dataset.id || "";
       document.getElementById("task-title").value = taskEl.querySelector("h3")?.innerText || "";
-      // body is first <p> that is not Deadline/Priority/Status
+
       const pEls = Array.from(taskEl.querySelectorAll("p"));
       const bodyP = pEls.find(p => {
         const t = p.innerText.toLowerCase();
@@ -130,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
       taskIdInput.value = "";
     }
   }
+
   function closeModal() {
     modal.style.display = "none";
     form.reset();
@@ -139,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addBtn?.addEventListener("click", () => openModal(false));
   closeBtn?.addEventListener("click", closeModal);
 
-  // add/edit submit
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = taskIdInput.value;
@@ -148,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
       title: document.getElementById("task-title").value.trim(),
       body: document.getElementById("task-body").value.trim(),
       priority: document.getElementById("task-priority").value,
-      // backend agreed date-only string (yyyy-mm-dd) or null
+
       deadline: (document.getElementById("task-deadline").value || null)
     };
 
@@ -171,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!res.ok) throw new Error("Failed to create task");
         showToast("Task created");
       }
-      // always re-fetch from server (authoritative)
+
       await fetchTasks();
       closeModal();
     } catch (err) {
@@ -180,19 +175,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // task actions: edit, delete, mark complete
   taskList.addEventListener("click", async (e) => {
     const taskEl = e.target.closest(".task");
     if (!taskEl) return;
     const id = taskEl.dataset.id;
 
-    // EDIT
     if (e.target.classList.contains("edit-btn")) {
       openModal(true, taskEl);
       return;
     }
 
-    // DELETE
     if (e.target.classList.contains("delete-btn")) {
       if (!confirm("Delete this task?")) return;
       try {
@@ -207,15 +199,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // MARK AS COMPLETED (only mark; UI hides button afterwards)
+
     if (e.target.classList.contains("complete-btn")) {
       const btn = e.target;
       btn.disabled = true;
       try {
         const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}/complete`, { method: "PUT" });
         if (!res.ok) throw new Error("Failed to mark complete");
-        // optional: read returned updated task
-        try { await res.json(); } catch(_) { /* ignore parse errors */ }
+
+        try { await res.json(); } catch(_) {}
         showToast("Task marked as completed");
         await fetchTasks();
       } catch (err) {
@@ -226,17 +218,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // parse "20 Sept, 2025" etc -> yyyy-mm-dd ; returns "" if invalid
+
   function parseToIsoDate(str) {
     if (!str || str === "N/A") return "";
-    // direct parse (works if string from toLocaleDateString)
+
     const d = new Date(str);
     if (!isNaN(d.valueOf())) return d.toISOString().split("T")[0];
-    // fallback: try yyyy-mm-dd already
+
     if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
     return "";
   }
 
-  // initial load
   fetchTasks();
 });
